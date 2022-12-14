@@ -1,0 +1,13 @@
+
+
+.navbar{
+    background-color: white !important;
+}
+.navbar li a{
+    color: black !important;
+}
+.navbar-brand{
+    font-weight: bold;
+    
+    color: #2196f3 !important;
+}
