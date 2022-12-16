@@ -1,0 +1,65 @@
+@page "/login"
+@using Sijl
+@using Interface.Helpers
+@inject Sijl.SijlClient Client
+<Header Current="Login"></Header>
+
+<h3>Login</h3>
+
+
+<Error Message="@_message"></Error>
+
+
+<div class="box wide">
+    <div class="form-grouping">
+        <p>
+            <label for="username">Username:</label>
+            <input size="30" autofocus="autofocus" type="text" name="username" id="username" @bind="_request.Username">
+
+            <br>
+
+            <label for="password">Password:</label>
+            <input size="30" type="password" name="password" id="password" @bind="_request.Password">
+            <br>
+        </p>
+
+        <p>
+            <button type="submit" @onclick="LoginMethod">Login</button>
+        </p>
+
+        <p>
+            Forgot your password or deleted your account?
+            <a href="/login/forgot_password">Reset your password</a>.
+        </p>
+
+        <p>
+            Not a user yet?
+            <a href="/register">Regisiter an account</a>
+        </p>
+    </div>
+</div>
+
+@code {
+    private LoginRequest _request = new();
+
+    private string? _message;
+
+    private async Task LoginMethod()
+    {
+        var res = await Client.LoginAsync(_request);
+        switch (res.Error)
+        {
+            case Err.Ok:
+                await _storageService.RegisterAsync(res.Token, _request.Username);
+                NavigationManager.NavigateTo("/", true);
+                break;
+            case Err.WrongPassword:
+                _message = "You entered a wrong password";
+                break;
+            case Err.WrongUsername:
+                _message = "This username does not exist, you can register instead";
+                break;
+        }
+    }
+
+}

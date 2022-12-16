@@ -1,0 +1,54 @@
+@using Interface.Helpers
+<header id="nav">
+    <div class="navholder">
+        <nav class="links">
+            @{
+                var l = new List<string>() {"Home", "Active", "Recent", "Comments", "Search"};
+                foreach (var head in l)
+                {
+                    if (head == Current)
+                    {
+                        <a class="current_page" href="/@head.ToLower()">@head</a>
+                        continue;
+                    }
+                    <a href="/@head.ToLower()">@head</a>
+                }
+            }
+            @if (Username is null)
+            {
+                <a class="corner" href="/login">Login</a>
+            }
+            else
+            {
+                <a class="corner" href="/u/@Username">@Username</a>
+                <a>•</a>
+                <a @onclick="Logout">Logout</a>
+            }
+
+
+        </nav>
+    </div>
+</header>
+
+
+@code {
+
+    [Parameter]
+    public string? Current { get; set; }
+
+    private string? Username { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Username = _storageService.User();
+        base.OnInitialized();
+    }
+
+
+    private async void Logout()
+    {
+        await _storageService.CleanAsync();
+        NavigationManager.NavigateTo("/", true);
+    }
+
+}
