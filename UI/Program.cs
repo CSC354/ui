@@ -1,14 +1,36 @@
-using Grpc.Core;
+using Blazored.LocalStorage;
 using Grpc.Net.Client;
-using Grpc.Net.Client.Web;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using UI;
 
-var builder = WebAssemblyHostBuilder.CreateDefault(args);
-builder.RootComponents.Add<App>("#app");
-builder.RootComponents.Add<HeadOutlet>("head::after");
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddRazorPages();
+
+builder.Services.AddServerSideBlazor();
 
 
+builder.Services.AddBlazoredLocalStorage();
 
-await builder.Build().RunAsync();
+builder.Services.AddSingleton(sev =>
+{
+    const string url = "172.21.0.5:8000";
+    var builder = new UriBuilder(url);
+    var channel = GrpcChannel.ForAddress(builder.Uri);
+    return new Sijl.Sijl.SijlClient(channel);
+});
+
+var app = builder.Build();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.MapBlazorHub();
+app.MapFallbackToPage("/_Host");
+
+app.Run();

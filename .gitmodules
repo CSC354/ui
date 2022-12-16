@@ -1,3 +1,6 @@
 [submodule "RPCHandler/protobufs"]
 	path = RPCHandler/protobufs
 	url = https://github.com/CSC354/protobufs
+[submodule "UI/protobufs"]
+	path = UI/protobufs
+	url = https://github.com/CSC354/protobufs

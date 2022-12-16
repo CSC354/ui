@@ -1,7 +1,6 @@
 using Blazored.LocalStorage;
-using Blazored.SessionStorage;
 
-namespace Interface.Helpers;
+namespace UI.Helpers;
 
 public static class StorageHelper
 {

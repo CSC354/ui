@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
@@ -8,41 +8,25 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.0" PrivateAssets="all" />
+        <AdditionalFiles Include="Components\Fouter.razor" />
+        <AdditionalFiles Include="Components\Header.razor" />
     </ItemGroup>
 
 
-
     <ItemGroup>
-        
+        <PackageReference Include="Blazored.LocalStorage" Version="4.3.0" />
         <PackageReference Include="Google.Protobuf" Version="3.21.11" />
         <PackageReference Include="Grpc.Net.Client" Version="2.50.0" />
-        <PackageReference Include="Grpc.Tools" Version="2.31.0">
+        <PackageReference Include="Grpc.Net.Client.Web" Version="2.50.0" />
+        <PackageReference Include="Grpc.Tools" Version="2.51.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
 
 
-
     <ItemGroup>
-        <ProjectReference Include="..\RPCHandler\RPCHandler.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Reference Include="Grpc.Net.Client">
-        <HintPath>..\..\..\.nuget\packages\grpc.net.client\2.50.0\lib\net7.0\Grpc.Net.Client.dll</HintPath>
-      </Reference>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Pages" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="Components\Fouter.razor" />
-      <_ContentIncludedByDefault Remove="Components\Header.razor" />
+        <Protobuf Include="protobufs/sijl/sijl.proto" />
     </ItemGroup>
 
 </Project>
