@@ -72,10 +72,8 @@
         switch (res.Error)
         {
             case Err.Ok:
-                NavigationManager.NavigateTo("/");
+                NavigationManager.NavigateTo("/", true);
                 await _storageService.RegisterAsync(res.Token, _request.Username);
-
-
                 break;
             case Err.GeneratingToken:
                 _message = "Something wrong happened";

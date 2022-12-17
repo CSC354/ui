@@ -1,0 +1,123 @@
+@page "/u/{username}"
+@using Sijl
+@using Markdig
+@using UI.Helpers
+@using Blazored.SessionStorage
+@inject global::Sijl.Profile.ProfileClient Client
+
+<Header Current="home"></Header>
+
+@if (string.IsNullOrEmpty(Username))
+{
+    NavigationManager.NavigateTo("/404", true);
+}
+
+@if (!string.IsNullOrEmpty(Message))
+{
+    <Error Message="@Message"></Error>
+}
+else
+{
+    <div id="inside">
+        <h1 class="inactive_user">@Username</h1>
+        <div class="box wide">
+            <div id="gravatar">
+                <img src="@GetImageDataUri(Details!.Avatar.ToByteArray())" width="100" height="100" alt="@Username">
+            </div>
+            <label class="required">Name:</label>
+            <span class="required">
+                <span>@string.Concat(Details.FirstName, " ", Details.LastName)</span>
+            </span>
+            <br>
+            @* // TODO implement numbers  *@
+            @* <label class="required">Stories Submitted:</label> *@
+            @* <span class="d"> *@
+            @*   <a href="/newest/j11g">258</a>, most commonly tagged <a class="tag tag_programming" title="Use when every tag or no specific tag applies" href="/t/programming">programming</a> *@
+            @* </span> *@
+            @* <br> *@
+            @* <label class="required">Comments Posted:</label> *@
+            @* <span class="d"><a href="/threads/j11g">84</a></span> *@
+            @* <br> *@
+
+            <label class="required">Joined:</label>
+            <span class="d">
+                <span>@Joined.ToString("dd/MM/yyyy"), @Ago</span>
+            </span>
+            <br>
+
+            @if (!string.IsNullOrEmpty(Details.Github))
+            {
+                <label class="required">Github:</label>
+
+                <span class="d">
+                    <a href="@Github" rel="me ugc">@Details.Github</a>
+                </span>
+                <br>
+            }
+
+            @if (!string.IsNullOrEmpty(Details.Home))
+            {
+                <label class="required">Homepage:</label>
+                <span class="d">
+                    <a href="@Details.Home" rel="me ugc">@Details.Home</a>
+                </span>
+                <br>
+            }
+            @if (!string.IsNullOrEmpty(Details.Twitter))
+            {
+                <label class="required">Twitter:</label>
+
+                <span class="d">
+                    <a href="@Twitter" rel="me ugc">@Details.Twitter</a>
+                </span>
+                <br>
+            }
+            @if (!string.IsNullOrEmpty(Details.About))
+            {
+                <label class="required">About:</label>
+                <div class="d shorten_first_p">
+                    @((MarkupString) Markdown.ToHtml(Details.About))
+                    <br>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+
+@code {
+
+    [Parameter]
+    public string? Username { get; set; }
+
+    private string? Message { get; set; }
+    private Details? Details { get; set; }
+    private DateTime Joined { get; set; }
+    private string Ago { get; set; } = null!;
+    private string? Twitter { get; set; }
+    private string? Github { get; set; }
+
+    protected override async void OnInitialized()
+    {
+        var response = Client.Get(new GetProfileRequest() {Username = Username});
+        if (response.Error is not Err.Ok)
+        {
+            Message = "Something wrong happened";
+            return;
+        }
+        Details = response.Details;
+
+        Joined = DateTimeOffset.FromUnixTimeSeconds(Details.Joined).DateTime;
+        Ago = TimeHelper.Relative(Joined.Date);
+        Twitter = "https://twitter.com/" + @Details.Twitter;
+        Github = "https://github.com/" + @Details.Github;
+    }
+
+
+    static string GetImageDataUri(byte[] imageBytes)
+    {
+        var base64 = Convert.ToBase64String(imageBytes);
+        return $"data:image/png;base64,{base64}";
+    }
+
+}
