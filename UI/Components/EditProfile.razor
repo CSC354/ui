@@ -1,0 +1,89 @@
+@using Microsoft.AspNetCore.Components
+@using Sijl
+@using UI.Helpers
+@inject Profile.ProfileClient ProfileClient
+
+@if (!string.IsNullOrEmpty(Message))
+{
+    <Error Message="@Message"></Error>
+}
+
+
+<div class="box wide">
+    <div class="form-grouping">
+        <p>
+            <label for="first_name">First name:</label>
+            <input size="30" autofocus="autofocus" type="text" name="first_name" id="first_name" @bind="Details.FirstName">
+            <br>
+
+
+            <label for="last_name">Last name:</label>
+            <input size="30" autofocus="autofocus" type="text" name="last_name" id="last_name" @bind="Details.LastName">
+            <br>
+
+            <label for="age">Age:</label>
+            <input size="30" autofocus="autofocus" type="number" name="age" id="age" @bind="Details.Age">
+            <br>
+
+
+            <label for="github">Github:</label>
+            <input size="30" autofocus="autofocus" type="text" name="github" id="github" @bind="Details.Github">
+            <br>
+
+
+            <label for="twitter">Twitter:</label>
+            <input size="30" autofocus="autofocus" type="text" name="twitter" id="twitter" @bind="Details.Twitter">
+            <br>
+
+
+            <label for="about">Home:</label>
+            <input size="30" autofocus="autofocus" type="text" name="home" id="home" @bind="Details.Home">
+            <br>
+
+
+            <label for="last_name">About:</label>
+            <textarea @bind="Details.About" rows="5" placeholder="Markdown supported." name="about" id="about" data-lt-tmp-id="lt-516010" spellcheck="false" data-gramm="false"></textarea>
+            <br>
+
+
+        </p>
+        <p>
+            <button type="submit" @onclick="Edit">Edit</button>
+        </p>
+
+    </div>
+</div>
+
+
+@code {
+
+
+    [Parameter]
+    public Details Details { get; set; } = null!;
+
+    private string? Message { get; set; }
+
+    private async Task Edit()
+    {
+        var token = _storageService.UserToken();
+        var res = await ProfileClient.UpdateAsync(new UpdateProfileRequest
+        {
+            Profile = Details,
+            Token = token
+        });
+        switch (res.Error)
+        {
+            case Err.Ok:
+                NavigationManager.NavigateTo($"/u/{Details.Username}", true);
+                return;
+            case Err.SomethingWrong:
+                await _storageService.CleanAsync();
+                NavigationManager.NavigateTo($"/u/{Details.Username}", true);
+                return;
+            default:
+                Message = ErrorMessageHelper.BuildError(res.Error);
+                break;
+        }
+    }
+
+}

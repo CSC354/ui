@@ -2,22 +2,25 @@
 @using Sijl
 @using Markdig
 @using UI.Helpers
-@using Blazored.SessionStorage
 @inject global::Sijl.Profile.ProfileClient Client
 
 <Header Current="home"></Header>
 
-@if (string.IsNullOrEmpty(Username))
-{
-    NavigationManager.NavigateTo("/404", true);
-}
 
 @if (!string.IsNullOrEmpty(Message))
 {
     <Error Message="@Message"></Error>
 }
-else
+
+
+
+@if (!Editing)
 {
+@if (_storageService.User() == @Username)
+{
+    <a class="footer" @onclick="@EditMode">Edit</a>
+}
+
     <div id="inside">
         <h1 class="inactive_user">@Username</h1>
         <div class="box wide">
@@ -72,6 +75,15 @@ else
                 </span>
                 <br>
             }
+
+
+            <label class="required">Age:</label>
+            <div class="d shorten_first_p">
+                @Details.Age
+                <br>
+            </div>
+
+
             @if (!string.IsNullOrEmpty(Details.About))
             {
                 <label class="required">About:</label>
@@ -82,6 +94,10 @@ else
             }
         </div>
     </div>
+}
+else
+{
+    <EditProfile Details="@Details"></EditProfile>
 }
 
 
@@ -96,9 +112,17 @@ else
     private string Ago { get; set; } = null!;
     private string? Twitter { get; set; }
     private string? Github { get; set; }
+    private bool Editing { get; set; }
 
-    protected override async void OnInitialized()
+    protected override void OnInitialized()
     {
+        Editing = false;
+        if (string.IsNullOrEmpty(Username))
+        {
+            NavigationManager.NavigateTo("/404", true);
+        }
+
+    // TODO there is an issue when using async.
         var response = Client.Get(new GetProfileRequest() {Username = Username});
         if (response.Error is not Err.Ok)
         {
@@ -119,5 +143,7 @@ else
         var base64 = Convert.ToBase64String(imageBytes);
         return $"data:image/png;base64,{base64}";
     }
+
+    private void EditMode() => Editing = true;
 
 }

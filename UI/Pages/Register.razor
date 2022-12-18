@@ -5,8 +5,6 @@
 <Header Current="Register"></Header>
 
 <h3>Register</h3>
-
-
 <Error Message="@_message"></Error>
 
 <div class="box wide">
@@ -52,14 +50,16 @@
 @code {
     private string? _message;
     private readonly NewUserRequest _request = new() {Age = 20};
+
     protected override void OnInitialized()
     {
-        if (_storageService.User() is not null)
+        if (!string.IsNullOrEmpty(_storageService.User()))
         {
             NavigationManager.NavigateTo("/");
         }
         base.OnInitialized();
     }
+
     private async Task RegisterMethod()
     {
         var res = await Client.RegisterAsync(_request);
@@ -68,41 +68,13 @@
             _message = "Something wrong happened";
             return;
         }
-        const string please = "Please enter a valid ";
-        switch (res.Error)
+        if (res.Error is Err.Ok)
         {
-            case Err.Ok:
-                NavigationManager.NavigateTo("/", true);
-                await _storageService.RegisterAsync(res.Token, _request.Username);
-                break;
-            case Err.GeneratingToken:
-                _message = "Something wrong happened";
-                break;
-            case Err.InvalidFirstName:
-                _message = please + "first name";
-                break;
-            case Err.InvalidLastName:
-                _message = please + "last name";
-                break;
-            case Err.InvalidEmail:
-                _message = please + "email address";
-                break;
-            case Err.InvalidAge:
-                _message = please + "age";
-                break;
-            case Err.InvalidUsername:
-                _message = please + "username";
-                break;
-            case Err.AlreadyUsedUsername:
-                _message = $"The username {_request.Username} is already used, try to login instead";
-                break;
-            case Err.InvalidPassword:
-                _message = "The password you used is very weak, please add more special characters and different letter cases";
-                break;
-            default:
-                _message = "Something wrong happened";
-                break;
+            await _storageService.RegisterAsync(res.Token, _request.Username);
+            NavigationManager.NavigateTo("/", true);
+            return;
         }
+        _message = ErrorMessageHelper.BuildError(res.Error);
     }
 
 }
