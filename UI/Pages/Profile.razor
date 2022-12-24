@@ -1,6 +1,7 @@
 @page "/u/{username}"
 @using Sijl
 @using Markdig
+@using Perrors
 @using UI.Helpers
 @inject global::Sijl.Profile.ProfileClient Client
 
@@ -16,11 +17,6 @@
 
 @if (!Editing)
 {
-@if (_storageService.User() == @Username)
-{
-    <a class="footer" @onclick="@EditMode">Edit</a>
-}
-
     <div id="inside">
         <h1 class="inactive_user">@Username</h1>
         <div class="box wide">
@@ -101,6 +97,11 @@ else
 }
 
 
+@if (_storageService.User() == @Username)
+{
+    <a @onclick="@EditMode">Edit</a>
+}
+
 @code {
 
     [Parameter]
@@ -124,7 +125,7 @@ else
 
     // TODO there is an issue when using async.
         var response = Client.Get(new GetProfileRequest() {Username = Username});
-        if (response.Error is not Err.Ok)
+        if (response.Error != (int) Errors.Ok)
         {
             Message = "Something wrong happened";
             return;
@@ -145,5 +146,4 @@ else
     }
 
     private void EditMode() => Editing = true;
-
 }

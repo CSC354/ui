@@ -1,6 +1,7 @@
 @page "/register"
 @using Sijl
 @using UI.Helpers
+@using Perrors
 @inject Sijl.SijlClient Client
 <Header Current="Register"></Header>
 
@@ -42,7 +43,6 @@
         <p>
             <button type="submit" @onclick="RegisterMethod">Register</button>
         </p>
-
     </div>
 </div>
 
@@ -68,13 +68,13 @@
             _message = "Something wrong happened";
             return;
         }
-        if (res.Error is Err.Ok)
+        if (res.Error == (int) Errors.Ok)
         {
             await _storageService.RegisterAsync(res.Token, _request.Username);
             NavigationManager.NavigateTo("/", true);
             return;
         }
-        _message = ErrorMessageHelper.BuildError(res.Error);
+        _message = ErrorMessageHelper.BuildError((int) Errors.Ok);
     }
 
 }
