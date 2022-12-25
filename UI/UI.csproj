@@ -7,30 +7,36 @@
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
-    <ItemGroup>
-        <AdditionalFiles Include="Components\Fouter.razor"/>
-        <AdditionalFiles Include="Components\Header.razor"/>
-    </ItemGroup>
-
 
     <ItemGroup>
-        <PackageReference Include="Blazored.LocalStorage" Version="4.3.0"/>
-        <PackageReference Include="Blazored.SessionStorage" Version="2.2.0"/>
-        <PackageReference Include="Google.Protobuf" Version="3.21.11"/>
-        <PackageReference Include="Grpc.Net.Client" Version="2.50.0"/>
-        <PackageReference Include="Grpc.Net.Client.Web" Version="2.50.0"/>
+        <PackageReference Include="Blazored.LocalStorage" Version="4.3.0" />
+        <PackageReference Include="Blazored.SessionStorage" Version="2.2.0" />
+        <PackageReference Include="Google.Protobuf" Version="3.21.11" />
+        <PackageReference Include="Grpc.Net.Client" Version="2.50.0" />
+        <PackageReference Include="Grpc.Net.Client.Web" Version="2.50.0" />
         <PackageReference Include="Grpc.Tools" Version="2.51.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Markdig" Version="0.30.4"/>
+        <PackageReference Include="Markdig" Version="0.30.4" />
+        <PackageReference Include="Syncfusion.Blazor.DropDowns" Version="20.4.0.38" />
+        <PackageReference Include="Syncfusion.Blazor.Themes" Version="20.4.0.38" />
     </ItemGroup>
 
 
     <ItemGroup>
-        <Protobuf Include="protobufs/sijl/sijl.proto"/>
-        <Protobuf Include="protobufs/perrors/perrors.proto"/>
-        <Protobuf Include="protobufs/discuss/discuss.proto"/>
+        <Protobuf Include="protobufs/sijl/sijl.proto" />
+        <Protobuf Include="protobufs/perrors/perrors.proto" />
+        <Protobuf Include="protobufs/discuss/discuss.proto" />
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Components\EditProfile.razor" />
+      <_ContentIncludedByDefault Remove="Components\Error.razor" />
+      <_ContentIncludedByDefault Remove="Components\Fouter.razor" />
+      <_ContentIncludedByDefault Remove="Components\Header.razor" />
+      <_ContentIncludedByDefault Remove="Components\Tags.razor" />
     </ItemGroup>
 
 </Project>

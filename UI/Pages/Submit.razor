@@ -1,0 +1,221 @@
+@page "/submit"
+@using UI.Helpers
+@using Discuss
+@using Syncfusion.Blazor.DropDowns
+@using Google.Protobuf.WellKnownTypes
+@using System.ComponentModel
+@using Google.Protobuf.Collections
+@inject Discuss.DiscussClient DiscussClient
+<!--suppress ALL -->
+<Header Current="submit"></Header>
+
+@* <script src="_content/Syncfusion.Blazor.Core/scripts/syncfusion-blazor.min.js" type="text/javascript"></script> *@
+
+<div id="inside">
+
+    <div class="box" id="story_box">
+        <h3 class="legend"> Submit a Story </h3>
+
+
+        @if (!string.IsNullOrEmpty(Message))
+        {
+            <Error Message="@Message"></Error>
+        }
+
+
+        <div id="story_holder">
+            <div class="box">
+                <div class="boxline">
+                    <label class="required" for="story_title">Title:</label>
+                    <input maxlength="100" size="100" type="text" name="title" id="story_title" @bind="_request.Title">
+                </div>
+
+
+                <div class="boxline" style="margin-bottom: 2px;">
+                    <label class="required" style="line-height: 2.3em;">Tags:</label>
+
+                    <SfMultiSelect TValue="int[]" TItem="Tags" Placeholder="Choosen Tags" DataSource="@TagsList" @bind-Value="@_chosenTags" Style="width:200px" Width="600px" PopupWidth="600px">
+                        <MultiSelectFieldSettings Text="Text" Value="ID"></MultiSelectFieldSettings>
+                    </SfMultiSelect>
+                </div>
+
+
+                <div class="boxline">
+                    <label class="required" for="story_description">Text:</label>
+                    <textarea @bind="@_request.Argument" rows="8" placeholder="Use this for stories without a URL, to link additional context, or to paste abstracts from PDF papers. Please don't use this to promote the story, summarize the post, or explain why you posted it. See the guidelines below for more." name="story[description]" id="story_description"></textarea>
+                </div>
+
+                <details class="boxline actions" open="open">
+                    <summary>Story submission guidelines</summary>
+                    <ul>
+
+                        <li>
+                            <p>
+                                Do not editorialize story titles, but when the original story's title has no context or is unclear, please change it.
+                                <strong>
+                                    Please remove extraneous components from titles such as the name of the site, blog, section, and author.
+                                </strong>
+                            </p>
+                        </li>
+
+                        <li>
+                            <p>
+                                When the story being submitted is more than a year or so old, please add the year the story was written to the post title in parentheses.
+                            </p>
+                        </li>
+
+                        <li>
+                            <p>
+                                When submitting a URL, the text field is optional and should only be used when additional context or explanation of the URL is needed. Commentary or opinion should be reserved for a comment, so that it can be voted on separately from the story.
+                            </p>
+                        </li>
+
+                        <li>
+                            <p>
+                                If no <a href="/tags">tags</a> clearly apply to the story you are submitting, chances are it does not belong here. Do not overreach with tags if they are not the primary focus of the story.
+                            </p>
+                        </li>
+
+                    </ul>
+                </details>
+            </div>
+
+
+            <p></p>
+
+            <div class="box">
+                <div class="boxline actions markdown_help_toggler">
+                    <div class="markdown_help_label" @onclick="ShowMark">
+                        Markdown formatting available
+                    </div>
+
+                    <input type="submit" name="commit" value="Submit" data-disable-with="Submit" @onclick="submit">
+
+                    <div style="clear: both;"></div>
+
+
+                    @if (mark)
+                    {
+                        <div class="markdown_help" style="padding-top: 0.5em;">
+                            <table>
+                                <tbody>
+                                <trmenu>
+                                    <td width="125">
+                                        <em>emphasized text</em>
+                                    </td>
+                                    <td>surround text with <tt>*asterisks*</tt></td>
+                                </trmenu>
+                                <tr>
+                                    <td>
+                                        <strong>strong text</strong>
+                                    </td>
+                                    <td>surround text with <tt>**two asterisks**</tt></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strike>struck-through</strike>
+                                    </td>
+                                    <td>surround text with <tt>~~two tilde characters~~</tt></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <tt>fixed width</tt>
+                                    </td>
+                                    <td>surround text with <tt>`backticks`</tt></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <a href="http://example.com/" style="color: inherit;">linked text</a>
+                                    </td>
+                                    <td>
+                                        <tt>[linked text](http://example.com/)</tt> or just a bare URL
+                                        to create without a title
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <blockquote> quoted text</blockquote>
+                                    </td>
+                                    <td>prefix text with <tt>&gt;</tt></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <pre style="margin: 0px;">pre text</pre>
+                                    </td>
+                                    <td>prefix text with at least<tt>&nbsp;&nbsp;&nbsp;&nbsp;4 spaces</tt></td>
+                                </tr>
+                                <tr>
+                                    <td>(inline image)</td>
+                                    <td>
+                                        <tt>![alt text](http://example.com/image.jpg)</tt>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    private string? Message { get; set; }
+    // [TypeConverter(typeof(EnumConverter))] 
+    private NewArgumentRequest _request;
+    private List<int> tagIds;
+    private List<string> TagNames;
+    bool mark;
+    private int[] _chosenTags = new int[] {};
+
+    public class Tags
+    {
+        public int ID { get; set; }
+        public string Text { get; set; }
+    }
+
+    public List<Tags> TagsList;
+
+    protected override void OnInitialized()
+    {
+        mark = false;
+        _request = new NewArgumentRequest();
+        if (string.IsNullOrEmpty(_storageService.User()))
+        {
+            NavigationManager.NavigateTo("/login", true);
+        }
+        TagNames = new List<string>();
+        _request.Token = _storageService.UserToken();
+        tagIds = DiscussClient.GetTags(new Empty()).ReponsesIDs.Select(x => x).ToList();
+        TagsList = new List<Tags>();
+        foreach (var tagId in tagIds)
+        {
+            TagsList.Add(new Tags() {ID = tagId, Text = DiscussClient.ReadTag(new Id {ID = tagId}).Tag_});
+        }
+        base.OnInitialized();
+    }
+
+    private void ShowMark()
+    {
+        mark = !mark;
+    }
+
+
+    private void submit()
+    {
+        if (string.IsNullOrEmpty(_request.Title) || string.IsNullOrEmpty(_request.Argument) || _chosenTags.Length == 0)
+        {
+            Message = $"{_request.Title}, {_request.Argument}, {_chosenTags.Length}";
+            return;
+        }
+        foreach (var chosenTag in _chosenTags)
+        {
+            _request.Tags.Add(chosenTag);
+        }
+        var id = DiscussClient.NewArgument(_request);
+        NavigationManager.NavigateTo($"/p/{id.ID}");
+    }
+
+}

@@ -1,0 +1,72 @@
+@page "/tags"
+@using Discuss
+@using Google.Protobuf.WellKnownTypes
+@inject Discuss.DiscussClient _discussClient
+
+<Header Current="Tags"></Header>
+
+
+@if (!string.IsNullOrEmpty(Message))
+{
+    <Error Message="@Message"></Error>
+}
+
+
+<div class="box wide">
+    <h3 class="legend">Tags</h3>
+
+    <p>You can filter out stories by tags.</p>
+
+    <ol class="category_tags">
+        @foreach (var tag in _tags)
+        {
+            <li>
+                <a class="tag tag_test" href="/t/@tag.ID">@tag.Name</a>
+            </li>
+        }
+    </ol>
+
+    <div class="box wide">
+        <h3 class="legend">
+            Tag Create
+        </h3>
+        <div class="boxline">
+            <label class="required" for="tag_tag">Name:</label>
+            <input type="text" name="tag[tag]" id="tag_tag" @bind="name">
+        </div>
+
+        <div class="boxline">
+            <input type="submit" name="commit" value="Create Tag" data-disable-with="Create Tag" @onclick="CreateTag">
+        </div>
+    </div>
+</div>
+
+
+@code {
+    string name = new("");
+    private string Message { get; set; }
+    private List<Tag> _tags = new();
+
+    protected override void OnInitialized()
+    {
+        var tagList = _discussClient.GetTags(new Empty()).ReponsesIDs;
+        foreach (var response in tagList)
+        {
+            _tags.Add(new Tag() {ID = response, Name = _discussClient.ReadTag(new Id() {ID = response}).Tag_});
+        }
+        base.OnInitialized();
+    }
+
+    private void CreateTag()
+    {
+        if (string.IsNullOrEmpty(name))
+        {
+            Message = "Empty tag name";
+            return;
+        }
+        _discussClient.AddTag(new global::Discuss.Tag {Tag_ = name});
+
+        NavigationManager.NavigateTo("/tags", true);
+    }
+
+}

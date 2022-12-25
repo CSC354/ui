@@ -1,6 +1,7 @@
 using Blazored.LocalStorage;
 using Blazored.SessionStorage;
 using Grpc.Net.Client;
+using Syncfusion.Blazor;
 using Sijl;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,9 +10,13 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddBlazoredSessionStorage();
+builder.Services.AddSyncfusionBlazor();
+// const string sijl = "http://sijl:8000";
+// const string discuss = "http://discuss:8000";
 
-const string sijl = "http://sijl:8000";
-const string discuss = "http://discuss:8000";
+
+const string sijl = "172.21.0.5:8000";
+const string discuss = "172.21.0.6:8000";
 
 builder.Services.AddSingleton(_ =>
 {
